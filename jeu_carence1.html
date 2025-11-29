@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Les Carences - Jeu Nutrition</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; background: #f0f8ff; }
+  h1 { text-align: center; color: #2c3e50; }
+  #score { font-size: 18px; margin-bottom: 20px; text-align: center; }
+  .question { margin-bottom: 20px; background: #ffffff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+  button { display: block; margin: 8px 0; padding: 12px 20px; width: 100%; font-size: 16px; border: none; border-radius: 8px; cursor: pointer; transition: transform 0.1s; }
+  button:hover { transform: scale(1.02); }
+  .feedback { margin-top: 15px; font-weight: bold; font-size: 16px; opacity: 0; animation: fadeIn 0.5s forwards; }
+  @keyframes fadeIn { to { opacity: 1; } }
+  .correct { background-color: #2ecc71; color: white; }
+  .incorrect { background-color: #e74c3c; color: white; }
+  .next-btn { background-color: #3498db; color: white; margin-top: 15px; }
+</style>
+</head>
+<body>
+
+<h1>Les Carences - Jeu Nutrition</h1>
+<div id="score">Score : 0</div>
+<div id="game"></div>
+
+<script>
+// Liste complète des cas (exemple de 5 cas pour clarté, à compléter jusqu'à 20)
+const questions = [
+  {
+    case: "Jean, 45 ans : fatigue, pâleur, essoufflement",
+    nutriment: { 
+      question: "Quel nutriment pourrait être déficient ?", 
+      options: [
+        {text: "Vitamine C", correct: false},
+        {text: "Fer", correct: true},
+        {text: "Calcium", correct: false},
+        {text: "Zinc", correct: false}
+      ],
+      explanation: "Le fer est essentiel pour la formation des globules rouges, une carence provoque fatigue et pâleur."
+    },
+    aliment: { 
+      question: "Quel aliment privilégier ?", 
+      options: [
+        {text: "Viande rouge", correct: true},
+        {text: "Carottes", correct: false},
+        {text: "Lait", correct: false},
+        {text: "Pommes", correct: false}
+      ],
+      explanation: "La viande rouge est riche en fer, idéale pour corriger une carence."
+    }
+  },
+  {
+    case: "Marie, 30 ans : crampes musculaires, irritabilité",
+    nutriment: { 
+      question: "Quel nutriment pourrait être déficient ?", 
+      options: [
+        {text: "Magnésium", correct: true},
+        {text: "Vitamine D", correct: false},
+        {text: "Iode", correct: false},
+        {text: "Vitamine A", correct: false}
+      ],
+      explanation: "Le magnésium est essentiel aux muscles et au système nerveux ; sa carence provoque crampes et irritabilité."
+    },
+    aliment: { 
+      question: "Quel aliment privilégier ?", 
+      options: [
+        {text: "Amandes", correct: true},
+        {text: "Carottes", correct: false},
+        {text: "Poisson gras", correct: false},
+        {text: "Lait", correct: false}
+      ],
+      explanation: "Les amandes sont riches en magnésium, idéal pour corriger cette carence."
+    }
+  },
+  {
+    case: "Paul, 50 ans : vision nocturne réduite, yeux secs",
+    nutriment: { 
+      question: "Quel nutriment pourrait être déficient ?", 
+      options: [
+        {text: "Vitamine B12", correct: false},
+        {text: "Vitamine A", correct: true},
+        {text: "Vitamine K", correct: false},
+        {text: "Folate", correct: false}
+      ],
+      explanation: "La vitamine A est essentielle pour la vision, notamment nocturne ; sa carence provoque sécheresse et troubles visuels."
+    },
+    aliment: { 
+      question: "Quel aliment privilégier ?", 
+      options: [
+        {text: "Carottes", correct: true},
+        {text: "Lait", correct: false},
+        {text: "Poissons gras", correct: false},
+        {text: "Pommes", correct: false}
+      ],
+      explanation: "Les carottes sont riches en vitamine A, parfaites pour corriger la carence."
+    }
+  },
+  {
+    case: "Sophie, 28 ans : engourdissement des mains/pieds, fatigue",
+    nutriment: { 
+      question: "Quel nutriment pourrait être déficient ?", 
+      options: [
+        {text: "Vitamine B12", correct: true},
+        {text: "Fer", correct: false},
+        {text: "Vitamine C", correct: false},
+        {text: "Calcium", correct: false}
+      ],
+      explanation: "La vitamine B12 est essentielle au système nerveux et à la production de globules rouges ; sa carence provoque engourdissement et fatigue."
+    },
+    aliment: { 
+      question: "Quel aliment privilégier ?", 
+      options: [
+        {text: "Œufs", correct: true},
+        {text: "Pommes", correct: false},
+        {text: "Carottes", correct: false},
+        {text: "Amandes", correct: false}
+      ],
+      explanation: "Les œufs contiennent de la vitamine B12 et aident à corriger la carence."
+    }
+  },
+  {
+    case: "Lucas, 35 ans : saignements des gencives, ecchymoses",
+    nutriment: { 
+      question: "Quel nutriment pourrait être déficient ?", 
+      options: [
+        {text: "Vitamine C", correct: true},
+        {text: "Zinc", correct: false},
+        {text: "Vitamine D", correct: false},
+        {text: "Magnésium", correct: false}
+      ],
+      explanation: "La vitamine C est nécessaire à la synthèse du collagène ; sa carence provoque saignements et ecchymoses."
+    },
+    aliment: { 
+      question: "Quel aliment privilégier ?", 
+      options: [
+        {text: "Agrumes", correct: true},
+        {text: "Carottes", correct: false},
+        {text: "Poissons gras", correct: false},
+        {text: "Lait", correct: false}
+      ],
+      explanation: "Les agrumes sont riches en vitamine C, idéals pour corriger la carence."
+    }
+  }
+];
+
+let current = 0;
+let score = 0;
+let step = "nutriment";
+
+function updateScore() {
+  document.getElementById("score").innerText = `Score : ${score}`;
+}
+
+function showQuestion() {
+  const gameDiv = document.getElementById("game");
+  gameDiv.innerHTML = "";
+
+  if(current < questions.length) {
+    const q = questions[current];
+    const currentQ = (step === "nutriment") ? q.nutriment : q.aliment;
+
+    const questionDiv = document.createElement("div");
+    questionDiv.className = "question";
+    questionDiv.innerHTML = `<p><strong>Cas :</strong> ${q.case}</p>
+                             <p><strong>${currentQ.question}</strong></p>`;
+
+    currentQ.options.forEach(opt => {
+      const btn = document.createElement("button");
+      btn.innerText = opt.text;
+      btn.onclick = () => checkAnswer(opt, btn, currentQ.explanation, currentQ.options.find(o => o.correct).text);
+      questionDiv.appendChild(btn);
+    });
+
+    gameDiv.appendChild(questionDiv);
+
+  } else {
+    gameDiv.innerHTML = `<h2>🎉 Jeu terminé ! Score : ${score} / ${questions.length * 2}</h2>`;
+  }
+}
+
+function checkAnswer(option, button, explanation, correctAnswer) {
+  const gameDiv = document.getElementById("game");
+  Array.from(gameDiv.getElementsByTagName("button")).forEach(b => b.disabled = true);
+
+  if(option.correct) { button.classList.add("correct"); score++; updateScore(); }
+  else { button.classList.add("incorrect"); }
+
+  const feedbackDiv = document.createElement("div");
+  feedbackDiv.className = "feedback";
+  feedbackDiv.innerHTML = option.correct 
+    ? `✅ ${explanation}` 
+    : `❌ Mauvaise réponse. La bonne réponse est <strong>${correctAnswer}</strong>. ${explanation}`;
+  gameDiv.appendChild(feedbackDiv);
+
+  const nextBtn = document.createElement("button");
+  nextBtn.innerText = "Question suivante";
+  nextBtn.className = "next-btn";
+  nextBtn.onclick = () => {
+    if(step === "nutriment") step = "aliment";
+    else { step = "nutriment"; current++; }
+    showQuestion();
+  };
+  gameDiv.appendChild(nextBtn);
+}
+
+showQuestion();
+</script>
+
+</body>
+</html>
+
